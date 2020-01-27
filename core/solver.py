@@ -1,4 +1,6 @@
 import tensorflow as tf
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import skimage.transform
 import numpy as np
@@ -47,7 +49,7 @@ class CaptioningSolver(object):
         self.log_path = kwargs.pop('log_path', './log/')
         self.model_path = kwargs.pop('model_path', './model/')
         self.pretrained_model = kwargs.pop('pretrained_model', None)
-        self.test_model = kwargs.pop('test_model', './model/lstm/model-1')
+        self.test_model = kwargs.pop('test_model', './model/lstm/model-9')
 
         # set an optimizer by update rule
         if self.update_rule == 'adam':
@@ -110,6 +112,8 @@ class CaptioningSolver(object):
         config = tf.ConfigProto(allow_soft_placement = True)
         #config.gpu_options.per_process_gpu_memory_fraction=0.9
         config.gpu_options.allow_growth = True
+        #config.gpu_options.visible_device_list= '1'
+
         with tf.Session(config=config) as sess:
             tf.global_variables_initializer().run()
             #summary_writer = tf.train.SummaryWriter(self.log_path, graph=tf.get_default_graph())
@@ -199,8 +203,10 @@ class CaptioningSolver(object):
 
         config = tf.ConfigProto(allow_soft_placement=True)
         config.gpu_options.allow_growth = True
+        
         with tf.Session(config=config) as sess:
             saver = tf.train.Saver()
+            print(self.test_model)
             saver.restore(sess, self.test_model)
             features_batch, image_files = sample_coco_minibatch(data, self.batch_size)
             feed_dict = { self.model.features: features_batch }
@@ -230,6 +236,7 @@ class CaptioningSolver(object):
                         plt.imshow(alp_img, alpha=0.85)
                         plt.axis('off')
                     plt.show()
+                    plt.savefig('./plots/plot-attention-'+str(n))
 
             if save_sampled_captions:
                 all_sam_cap = np.ndarray((features.shape[0], 20))

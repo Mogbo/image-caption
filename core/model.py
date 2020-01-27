@@ -42,6 +42,7 @@ class CaptionGenerator(object):
         self.V = len(word_to_idx)
         self.L = dim_feature[0]
         self.D = dim_feature[1]
+        print(self.D)
         self.M = dim_embed
         self.H = dim_hidden
         self.T = n_time_step
@@ -88,7 +89,7 @@ class CaptionGenerator(object):
             w = tf.get_variable('w', [self.H, self.D], initializer=self.weight_initializer)
             b = tf.get_variable('b', [self.D], initializer=self.const_initializer)
             w_att = tf.get_variable('w_att', [self.D, 1], initializer=self.weight_initializer)
-
+                
             h_att = tf.nn.relu(features_proj + tf.expand_dims(tf.matmul(h, w), 1) + b)    # (N, L, D)
             out_att = tf.reshape(tf.matmul(tf.reshape(h_att, [-1, self.D]), w_att), [-1, self.L])   # (N, L)
             alpha = tf.nn.softmax(out_att)
